@@ -151,8 +151,11 @@ void power_ref_expert::resolve(void)
 
         // Calculate the desired ZBX power ref with the SCM at max gain
         const double zbx_desired_pref = _power_ref_in + _scm_gain_out;
-        _radio->set_rx_power_reference(zbx_desired_pref, chan);
-        const double zbx_pref = _radio->get_rx_power_reference(chan);
+        // For best performance, limit the ZBX max input power.
+        double zbx_pref = (zbx_desired_pref > RX_OUT_MAX_POWER) ? RX_OUT_MAX_POWER
+                                                                : zbx_desired_pref;
+        _radio->set_rx_power_reference(zbx_pref, chan);
+        zbx_pref = _radio->get_rx_power_reference(chan);
 
         // Decrease the SCM gain if required
         const double gain_adjust = zbx_desired_pref - zbx_pref;

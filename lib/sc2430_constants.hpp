@@ -28,6 +28,8 @@ static constexpr double TX_IN_ABS_MAX_POWER = 10;
 // waveform types. The SCM has sufficient TX gain to increase the ZBX output level up to
 // the SCM TX output power specification (Linear Power assuming 10 dB PAR).
 static constexpr double TX_IN_TYP_MAX_POWER = -5;
+// The X410 specification states a maximum RX input power of 0 dBm.
+static constexpr double RX_OUT_MAX_POWER = 0;
 
 } // namespace scm
 
