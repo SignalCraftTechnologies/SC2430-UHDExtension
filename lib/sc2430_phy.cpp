@@ -246,7 +246,7 @@ void phy::write_control(const control& control)
                             | ((control.trx == uhd::TX_DIRECTION ? 1 : 0) << 4) | (control.element);
     const uint32_t data = (static_cast<uint32_t>(ctrl_id) << 8)
                           | (static_cast<uint32_t>(control.value));
-    _spi->write_spi(CONTROL_SPI, config, data, 16);
+    _spi->transact_spi(CONTROL_SPI, config, data, 16, true);
 }
 
 void phy::set_attn_latch(const size_t chan, const bool enabled)
