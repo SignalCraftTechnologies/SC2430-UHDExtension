@@ -169,14 +169,14 @@ uhd::gain_range_t sc2430_impl::get_rx_gain_range(const std::string& name, const 
 {
     const auto scm_range = _phy->get_rx_gain_range(chan);
     const auto zbx_range = _radio->get_rx_gain_range(name, chan);
-    return {zbx_range.start() + scm_range.start(), zbx_range.stop() + scm_range.stop()};
+    return {zbx_range.start() + scm_range.start(), zbx_range.stop() + scm_range.stop(), 1};
 }
 
 uhd::gain_range_t sc2430_impl::get_tx_gain_range(const std::string& name, const size_t chan) const
 {
     const auto scm_range = _phy->get_tx_gain_range(chan);
     const auto zbx_range = _radio->get_tx_gain_range(name, chan);
-    return {zbx_range.start() + scm_range.start(), zbx_range.stop() + scm_range.stop()};
+    return {zbx_range.start() + scm_range.start(), zbx_range.stop() + scm_range.stop(), 1};
 }
 
 freq_range_t sc2430_impl::get_rx_frequency_range(const size_t) const
