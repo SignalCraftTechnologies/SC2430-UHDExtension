@@ -23,11 +23,11 @@ static constexpr double TX_DEFAULT_POWER_REF = -60;
 // The ZBX is capable of TX output power levels exceeding the SCM TX input no-damage
 // specification of +15 dBm. For good measure, back this off by another 5 dB.
 static constexpr double TX_IN_ABS_MAX_POWER = 10;
-// The X410 specification indicates the TX EVM is optimized between -15 and 5 dBm for a 5G
-// NR 100 MHz waveform. Limiting the ZBX output power to -5 dBm provides a margin for other
-// waveform types. The SCM has sufficient TX gain to increase the ZBX output level up to
-// the SCM TX output power specification (Linear Power assuming 10 dB PAR).
-static constexpr double TX_IN_TYP_MAX_POWER = -5;
+// The X410 specification indicates the TX EVM is optimized between -15 and 5 dBm (average power)
+// for a 5G NR 100 MHz waveform. Limiting the ZBX output power to -5 dBm (average power) provides
+// a margin for other waveform types. The power reference is expressed in terms of peak power,
+// therefore, it is adjusted by the median OFDM PAPR of 8 to 15 dB.
+static constexpr double TX_IN_TYP_MAX_POWER = -5 + ((8 + 15) / 2);
 // The X410 specification states a maximum RX input power of 0 dBm.
 static constexpr double RX_OUT_MAX_POWER = 0;
 
