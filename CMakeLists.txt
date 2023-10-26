@@ -56,3 +56,4 @@ set(extension_target ${CMAKE_INSTALL_PREFIX}/lib/libsc2430.so)
 
 install(TARGETS sc2430 DESTINATION lib)
 install(CODE "execute_process(COMMAND bash -c \"mkdir -p ${UHD_MODULE_PATH} && ln -s -f ${extension_target} -t ${UHD_MODULE_PATH}\")")
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION include FILES_MATCHING PATTERN "*.h*")
