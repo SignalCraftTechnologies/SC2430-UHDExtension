@@ -62,7 +62,6 @@ void frequency_programming_expert::resolve(void)
 void gain_programming_expert::resolve(void)
 {
     UHD_LOG_TRACE(scm::NAME, "gain_programming_expert::resolve");
-    UHD_LOG_DEBUG(scm::NAME, "Programming gain: " << _scm_gain_in << " dB" << to_path_str(_path));
 
     uhd::gain_range_t gain_range(-128, 127, 1);
 
@@ -88,10 +87,11 @@ void gain_expert::resolve(void)
 
     UHD_LOG_DEBUG(scm::NAME, "Setting gain: " << _gain_in << " dB" << to_path_str(_path));
 
+    double zbx_gain = 0;
     const auto chan = _path.chan;
     if (_path.trx == RX_DIRECTION) {
         // Set the ZBX to Minimum Gain
-        double zbx_gain = _radio->get_rx_gain_range(chan).start();
+        zbx_gain = _radio->get_rx_gain_range(chan).start();
         // For best performance, utilize the SCM gain before the ZBX gain.
         _scm_gain_out = _phy->get_rx_gain_range(chan).clip(_gain_in - zbx_gain, true);
 
@@ -110,9 +110,9 @@ void gain_expert::resolve(void)
         const double zbx_pref     = _radio->get_tx_power_reference(chan);
         const double zbx_gain_max = TX_IN_TYP_MAX_POWER - zbx_pref + _radio->get_tx_gain(chan);
         // Limit the ZBX gain to ensure the power does not exceed the max.
-        double zbx_gain = _gain_in - _scm_gain_out;
-        zbx_gain        = (zbx_gain > zbx_gain_max) ? zbx_gain_max : zbx_gain;
-        zbx_gain        = _radio->set_tx_gain(zbx_gain, chan);
+        zbx_gain = _gain_in - _scm_gain_out;
+        zbx_gain = (zbx_gain > zbx_gain_max) ? zbx_gain_max : zbx_gain;
+        zbx_gain = _radio->set_tx_gain(zbx_gain, chan);
 
         // Adjust the SCM gain for the actual ZBX gain
         _scm_gain_out = scm_gain_range.clip(_gain_in - zbx_gain, true);
@@ -127,6 +127,8 @@ void gain_expert::resolve(void)
         }
         _gain_out = zbx_gain + _scm_gain_out;
     }
+    UHD_LOG_DEBUG(scm::NAME, "ZBX gain: " << zbx_gain << " dB" << to_path_str(_path));
+    UHD_LOG_DEBUG(scm::NAME, "SCM gain: " << _scm_gain_out << " dB" << to_path_str(_path));
     _radio->get_tree()->access<bool>(_power_ref_path).set(false);
 }
 
@@ -147,6 +149,7 @@ void power_ref_expert::resolve(void)
     }
     UHD_LOG_DEBUG(scm::NAME, "Setting pref: " << _power_ref_in << " dBm" << to_path_str(_path));
 
+    double zbx_pref = 0;
     const auto chan = _path.chan;
     if (_path.trx == uhd::direction_t::RX_DIRECTION) {
         const auto scm_gain_range = _phy->get_rx_gain_range(chan);
@@ -157,8 +160,7 @@ void power_ref_expert::resolve(void)
         // Calculate the desired ZBX power ref with the SCM at max gain
         const double zbx_desired_pref = _power_ref_in + _scm_gain_out;
         // For best performance, limit the ZBX max input power.
-        double zbx_pref = (zbx_desired_pref > RX_OUT_MAX_POWER) ? RX_OUT_MAX_POWER
-                                                                : zbx_desired_pref;
+        zbx_pref = (zbx_desired_pref > RX_OUT_MAX_POWER) ? RX_OUT_MAX_POWER : zbx_desired_pref;
         _radio->set_rx_power_reference(zbx_pref, chan);
         zbx_pref = _radio->get_rx_power_reference(chan);
 
@@ -177,8 +179,8 @@ void power_ref_expert::resolve(void)
         // Calculate the desired ZBX power ref with the SCM at min gain
         const double zbx_desired_pref = _power_ref_in - _scm_gain_out;
         // For best performance, limit the ZBX max output power.
-        double zbx_pref = (zbx_desired_pref > TX_IN_TYP_MAX_POWER) ? TX_IN_TYP_MAX_POWER
-                                                                   : zbx_desired_pref;
+        zbx_pref = (zbx_desired_pref > TX_IN_TYP_MAX_POWER) ? TX_IN_TYP_MAX_POWER
+                                                            : zbx_desired_pref;
         _radio->set_tx_power_reference(zbx_pref, chan);
         zbx_pref = _radio->get_tx_power_reference(chan);
 
@@ -196,6 +198,8 @@ void power_ref_expert::resolve(void)
         }
         _power_ref_out = zbx_pref + _scm_gain_out;
     }
+    UHD_LOG_DEBUG(scm::NAME, "ZBX pref: " << zbx_pref << " dB" << to_path_str(_path));
+    UHD_LOG_DEBUG(scm::NAME, "SCM gain: " << _scm_gain_out << " dB" << to_path_str(_path));
     _radio->get_tree()->access<bool>(_power_ref_path).set(true);
 }
 
