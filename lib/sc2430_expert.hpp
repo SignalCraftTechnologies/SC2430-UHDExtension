@@ -95,10 +95,12 @@ public:
         , _phy(phy)
         , _path(path)
         , _power_ref_path(fe_path / "power_ref" / "enabled")
+        , _freq_in(db, scm_fe_path / "freq" / "value" / "coerced")
         , _gain_in(db, fe_path / "gains" / "all" / "value" / "desired")
         , _gain_out(db, fe_path / "gains" / "all" / "value" / "coerced")
         , _scm_gain_out(db, scm_fe_path / "gains" / "all" / "value" / "desired")
     {
+        bind_accessor(_freq_in);
         bind_accessor(_gain_in);
         bind_accessor(_gain_out);
         bind_accessor(_scm_gain_out);
@@ -113,6 +115,7 @@ private:
     const uhd::fs_path _power_ref_path;
 
     // Inputs
+    uhd::experts::data_reader_t<double> _freq_in;
     uhd::experts::data_reader_t<double> _gain_in;
     // Outputs
     uhd::experts::data_writer_t<double> _gain_out;

@@ -81,6 +81,11 @@ void gain_programming_expert::resolve(void)
 void gain_expert::resolve(void)
 {
     UHD_LOG_TRACE(scm::NAME, "gain_expert::resolve");
+    const bool is_power_ref_mode = _radio->get_tree()->access<bool>(_power_ref_path).get();
+    if (_freq_in.is_dirty() && !_gain_in.is_dirty() && is_power_ref_mode) {
+        return;
+    }
+
     UHD_LOG_DEBUG(scm::NAME, "Setting gain: " << _gain_in << " dB" << to_path_str(_path));
 
     const auto chan = _path.chan;
