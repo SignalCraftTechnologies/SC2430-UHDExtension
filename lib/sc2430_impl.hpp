@@ -14,6 +14,7 @@
 #include <uhd/rfnoc/rf_control/antenna_iface.hpp>
 #include <uhd/rfnoc/rf_control/nameless_gain_mixin.hpp>
 #include <uhd/types/serial.hpp>
+#include <uhd/version.hpp>
 #include <sc2430/sc2430.hpp>
 #include <string>
 #include <vector>
@@ -192,12 +193,22 @@ public:
         throw uhd::not_implemented_error("set_tx_lo_source is not supported on this radio");
     }
 
+// UHD 4.7.0.0 changed the declaration 
+#if (UHD_VERSION > 4070000)
     std::string get_rx_lo_source(const std::string&, const size_t) override
+#else
+    const std::string get_rx_lo_source(const std::string&, const size_t) override
+#endif
     {
         throw uhd::not_implemented_error("get_rx_lo_source is not supported on this radio");
     }
-
+    
+// UHD 4.7.0.0 changed the declaration 
+#if (UHD_VERSION > 4070000)
     std::string get_tx_lo_source(const std::string&, const size_t) override
+#else
+    const std::string get_tx_lo_source(const std::string&, const size_t) override
+#endif
     {
         throw uhd::not_implemented_error("get_tx_lo_source is not supported on this radio");
     }
